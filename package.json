@@ -7,6 +7,7 @@
   "type": "module",
   "dependencies": {
     "@langchain/community": "^0.3.8",
+    "@langchain/core": "^0.3.13",
     "@langchain/openai": "^0.3.11",
     "@supabase/supabase-js": "^2.45.6",
     "@types/node": "^22.7.9",

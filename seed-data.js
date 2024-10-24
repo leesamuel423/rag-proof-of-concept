@@ -10,9 +10,9 @@ import 'dotenv/config'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 try {
-  const sbApiKey = process.env.SUPABASE_API_ANON
-  const sbUrl = process.env.SUPABASE_URL
-  const openAIApiKey = process.env.OPEN_AI_API
+  const sbApiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmeHFya2JrdHVhaHhmZ25wZWplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk2Mjc3NDUsImV4cCI6MjA0NTIwMzc0NX0.lVRhMQkHe5or1goB1ZMtjd09mOgRa4yql2swHNvPad4"
+  const sbUrl = "https://ufxqrkbktuahxfgnpeje.supabase.co"
+  const openAIApiKey = "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"
 
   const text = await readFile(join(__dirname, 'sam-info.txt'), 'utf-8')
 
