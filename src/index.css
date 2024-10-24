@@ -1,0 +1,88 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: #000000;
+  color: white;
+}
+
+.chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.conversation-container {
+  height: 500px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background: #f8f9fa;
+}
+
+.speech {
+  max-width: 80%;
+  margin: 10px;
+  padding: 15px;
+  border-radius: 10px;
+  clear: both;
+  word-wrap: break-word;
+}
+
+.speech-human {
+  background-color: #007bff;
+  color: white;
+  float: right;
+}
+
+.speech-ai {
+  background-color: white;
+  color: black;
+  float: left;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.sources {
+  border-top: 1px solid #eee;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+form {
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  flex-grow: 1;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+input:disabled {
+  background-color: #f5f5f5;
+}
+
+button {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  min-width: 100px;
+}
+
+button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
