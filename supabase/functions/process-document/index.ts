@@ -5,7 +5,7 @@ import { SupabaseVectorStore } from "https://esm.sh/@langchain/community/vectors
 
 console.log("Function 'process-document' is running!");
 
-// Store the content directly in the code
+// stored content directly in code, but in prod would store in supabase storage
 const samInfoContent = `
 Main Faqs
 
@@ -29,7 +29,7 @@ Sam enjoys reading books in his free time. His favorite book (or most memorable)
 `;
 
 serve(async (req) => {
-  // Handle CORS preflight request
+  // handle CORS preflight request
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
@@ -41,50 +41,53 @@ serve(async (req) => {
   }
 
   try {
-    // Get environment variables
+    // get environment variables
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
 
+    // verify required environment variables are present
     if (!supabaseUrl || !supabaseServiceRoleKey || !openaiApiKey) {
       throw new Error("Missing required environment variables");
     }
 
-    // Initialize OpenAI embeddings
+    // initialize OpenAI embeddings
     const embeddings = new OpenAIEmbeddings({
       openAIApiKey: openaiApiKey,
       model: "text-embedding-3-small",
     });
 
-    // Initialize Supabase client
+    // initialize Supabase client for db access
     const supabaseClient = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    // Initialize vector store
+    // initialize vector store
     const vectorStore = new SupabaseVectorStore(embeddings, {
       client: supabaseClient,
-      tableName: "documents",
-      queryName: "match_documents",
+      tableName: "documents", // table where vectors will be stored
+      queryName: "match_documents", // name of similarity search function
     });
 
-    // Split the content into chunks
-    const chunks = samInfoContent.split(/(?=\n\s*\n)/)  // Split on double newlines
-      .map(chunk => chunk.trim())  // Trim whitespace
-      .filter(chunk => chunk.length > 0)  // Remove empty chunks
+    // split the content into chunks for proper text segmentation
+    // TODO: transwarp hippo look into (https://www.transwarp.cn/en/subproduct/hippo)
+    const chunks = samInfoContent.split(/(?=\n\s*\n)/)  // split on double newlines
+      .map(chunk => chunk.trim())  // trim whitespace
+      .filter(chunk => chunk.length > 0)  // remove empty chunks
       .map(chunk => {
-        // Further split if chunk is too large (over 1000 characters)
+        // further split if chunk too large (over 1000 characters)
         if (chunk.length > 1000) {
-          return chunk.split(/(?<=\.|\?|\!)\s+/)  // Split on sentence boundaries
+          return chunk.split(/(?<=\.|\?|\!)\s+/)  // split on sentence boundaries (.!? )
             .filter(sentence => sentence.length > 0);
         }
         return [chunk];
       })
-      .flat();  // Flatten the array of chunks
+      .flat();  // flatten the array of chunks
 
     console.log(`Split content into ${chunks.length} chunks`);
 
-    // Prepare documents for vectorization
+    // prep docs for vectorization
+    // each doc should have text content and metadata
     const documents = chunks.map((chunk, index) => ({
-      pageContent: chunk.trim(),
+      pageContent: chunk.trim(), //text content
       metadata: { 
         source: "sam-info.txt",
         chunk: index,
@@ -92,11 +95,11 @@ serve(async (req) => {
       }
     }));
 
-    // Generate numeric IDs starting from current timestamp
+    // generate numeric IDs starting from current timestamp for uniqueness 
     const baseId = Date.now();
     const ids = documents.map((_, index) => baseId + index);
 
-    // Add documents to the vector store
+    // add documents to the vector store; convert chunk to embeddings -> store text + embeddings in supabase
     await vectorStore.addDocuments(documents, { ids });
 
     return new Response(
@@ -119,7 +122,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: err.message,
-        stack: err.stack // Including stack trace for debugging
+        stack: err.stack
       }),
       {
         status: 500,
